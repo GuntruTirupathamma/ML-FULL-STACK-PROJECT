@@ -5,6 +5,8 @@ This is a full-stack machine learning project that demonstrates **Simple Linear 
 It predicts salaries based on years of experience using a trained machine learning model.
 
 ---
+![Screenshot_13-7-2025_15340_localhost](https://github.com/user-attachments/assets/e78a5930-b5ca-40ef-ab2d-ac962bb9bcd1)
+
 
 ## 🔧 Features
 
@@ -33,6 +35,4 @@ It predicts salaries based on years of experience using a trained machine learni
    git clone https://github.com/GuntruTirupathamma/ML-FULL-STACK-PROJECT.git
    cd ML-FULL-STACK-PROJECT
 
-
-   <img width="1722" height="804" alt="image" src="https://github.com/user-attachments/assets/615c5ba2-be32-4613-8b64-12c7c15884c0" />
 
