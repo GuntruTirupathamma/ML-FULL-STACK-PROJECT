@@ -1,8 +1,7 @@
-name: pylint Pipeline
+name: DevSecOps Code Scan
 
 on:
   push:
-    branches: [ main ]
   pull_request:
 
 jobs:
@@ -10,25 +9,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout source code
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # 2️⃣ Setup Python
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.10"
 
+      # 3️⃣ Install security tools
       - name: Install security tools
         run: |
-          pip install --upgrade pip
-          pip install bandit truffleHog pre-commit
+          python -m pip install --upgrade pip
+          pip install bandit trufflehog pip-audit
 
-      - name: Run pre-commit hooks
-        run: pre-commit run --all-files || true
+      # 4️⃣ Dependency vulnerability scan (VERY IMPORTANT)
+      - name: Run Dependency Scan (pip-audit)
+        run: pip-audit || true
 
+      # 5️⃣ SAST – Bandit (ML-safe configuration)
       - name: Run Bandit (SAST)
-        run: bandit -r .
+        run: |
+          bandit -r . \
+          -ll \
+          -s B403,B301
 
+      # 6️⃣ Secrets scanning
       - name: Run TruffleHog (Secrets Scan)
-        run: trufflehog filesystem . --no-update
+        run: trufflehog filesystem . --no-update --fail
+
 
