@@ -1,0 +1,34 @@
+name: pylint Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  code-scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install security tools
+        run: |
+          pip install --upgrade pip
+          pip install bandit truffleHog pre-commit
+
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files || true
+
+      - name: Run Bandit (SAST)
+        run: bandit -r .
+
+      - name: Run TruffleHog (Secrets Scan)
+        run: trufflehog filesystem . --no-update
+
