@@ -1,43 +1,58 @@
-name: DevSecOps Code Scan
+name: DevSecOps Code Scan Pipeline
 
 on:
   push:
+    branches: [ "main", "master" ]
   pull_request:
 
 jobs:
   code-scan:
+    name: SAST + Secrets + Dependency Scan
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout source code
+      # 1️⃣ Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
 
       # 2️⃣ Setup Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
       # 3️⃣ Install security tools
-      - name: Install security tools
+      - name: Install DevSecOps tools
         run: |
           python -m pip install --upgrade pip
-          pip install bandit trufflehog pip-audit
+          pip install \
+            bandit \
+            trufflehog==3.88.0 \
+            pip-audit \
+            safety
 
-      # 4️⃣ Dependency vulnerability scan (VERY IMPORTANT)
-      - name: Run Dependency Scan (pip-audit)
-        run: pip-audit || true
-
-      # 5️⃣ SAST – Bandit (ML-safe configuration)
-      - name: Run Bandit (SAST)
+      # 4️⃣ Run Bandit (SAST)
+      - name: Run Bandit (Static Code Analysis)
         run: |
           bandit -r . \
-          -ll \
-          -s B403,B301
+            --severity-level medium \
+            --confidence-level high \
+            -s B404,B603
 
-      # 6️⃣ Secrets scanning
-      - name: Run TruffleHog (Secrets Scan)
-        run: trufflehog filesystem . --no-update --fail
+      # 5️⃣ Run Dependency Vulnerability Scan
+      - name: Run pip-audit (Dependencies)
+        run: |
+          pip-audit || true
+
+      # 6️⃣ Run Safety (Dependency CVEs)
+      - name: Run Safety Check
+        run: |
+          safety check || true
+
+      # 7️⃣ Run TruffleHog (Secrets Scan)
+      - name: Run TruffleHog (Secrets Detection)
+        run: |
+          trufflehog filesystem . --fail
+
 
 
